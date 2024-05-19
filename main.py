@@ -2,6 +2,7 @@ from decorators import input_error
 from collections import UserDict
 from datetime import datetime, timedelta
 
+# Classes for this app
 class Field:
     def __init__(self, value):
         self.value = value
@@ -96,7 +97,7 @@ class AddressBook(UserDict):
         return upcoming_birthdays
 
 
-# Add contact function
+# Add contact function. Accepts 2 argument (name of the user and phone number) and ignores everything else
 @input_error
 def add_contact(args, book: AddressBook):
     name, phone, *_ = args
@@ -111,7 +112,7 @@ def add_contact(args, book: AddressBook):
     return message
 
 
-# Change number function
+# Change number function. Accepts 3 args (contact name, old phone and new phone)
 @input_error
 def change_number(args, book: AddressBook):
     name, old_phone, new_phone, *_ = args
@@ -130,7 +131,7 @@ def show_phone(args, book: AddressBook):
         return f"{name}'s phone number is: {'; '.join(str(phone) for phone in record.phones)}"
     return 'Contact not found.'
 
-# Add birthday function
+# Function that add birthday date to existing contact
 @input_error
 def add_birthday(args, book: AddressBook):
     name, birthday, *_ = args
@@ -151,7 +152,7 @@ def show_birthday(args, book: AddressBook):
         return f"{name} does not have a birthday set."
     return 'Contact not found.'
 
-# Birthdays function
+# Birthdays function that returns all upcoming birthdays (next 7 days from now). Data is taken from AddressBook class method
 @input_error
 def birthdays(args, book: AddressBook):
     upcoming = book.get_upcoming_birthdays()
