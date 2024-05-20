@@ -84,16 +84,28 @@ class AddressBook(UserDict):
         if name in self.data:
             del self.data[name]
 
-    def get_upcoming_birthdays(self):
-        today = datetime.now()
-        next_week = today + timedelta(days=7)
+    def adjust_for_weekend(self, date_obj):
+        if date_obj.weekday() == 5:  # Saturday
+            return date_obj + timedelta(days=2)
+        elif date_obj.weekday() == 6:  # Sunday
+            return date_obj + timedelta(days=1)
+        return date_obj
+
+    def get_upcoming_birthdays(self, days=7):
         upcoming_birthdays = []
-        #Check birthdays in next 7 days
+        today = datetime.today()
+        next_week = today + timedelta(days=days)
+
         for record in self.data.values():
             if record.birthday:
                 birthday_this_year = record.birthday.value.replace(year=today.year)
+                if birthday_this_year < today:
+                    birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+                birthday_this_year = self.adjust_for_weekend(birthday_this_year)
+
                 if today <= birthday_this_year <= next_week:
-                    upcoming_birthdays.append(record)
+                    upcoming_birthdays.append((record, birthday_this_year))
+
         return upcoming_birthdays
 
 
@@ -157,7 +169,7 @@ def show_birthday(args, book: AddressBook):
 def birthdays(args, book: AddressBook):
     upcoming = book.get_upcoming_birthdays()
     if upcoming:
-        return 'Upcoming birthdays:\n' + '\n'.join(f"{record.name}: {record.birthday}" for record in upcoming)
+        return 'Upcoming birthdays:\n' + '\n'.join(f"{record.name}: {date.strftime('%d.%m.%Y')}" for record, date in upcoming)
     return 'No upcoming birthdays in the next week.'
 
 
